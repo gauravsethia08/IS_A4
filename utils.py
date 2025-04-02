@@ -22,7 +22,7 @@ def load_image(image_name):
     return image.to(device, torch.float)
 
 
-def imshow(tensor, title=None):
+def imshow(tensor, title=None, save_path=""):
     image = tensor.cpu().clone()  # we clone the tensor to not do changes on it
     image = image.squeeze(0)      # remove the fake batch dimension
     image = unloader(image)
@@ -30,6 +30,10 @@ def imshow(tensor, title=None):
     if title is not None:
         plt.title(title)
     plt.pause(0.001)  # pause a bit so that plots are updated
+    if save_path != "":
+        # Save the image to the specified path
+        image.save(save_path)
+        # plt.imsave(save_path, image)
 
 
 """Additionally, VGG networks are trained on images with each channel

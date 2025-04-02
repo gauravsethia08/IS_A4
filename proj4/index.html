@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 4 | gsethia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.2;
+            background-color: #f0f0f0; /* Light grey background */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #333;
+        }
+
+        .table_img {
+            max-width: 200px;
+            /* Adjust as needed */
+            height: auto;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #59565667;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .container img {
+            max-width: 200px;
+            /* Adjust as needed */
+        }
+
+        .code {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .content {
+            width: 80%; /* Adjust width as needed */
+            max-width: 1200px; /* Maximum width */
+            padding: 20px;
+            background-color: white; /* Content background */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="content">
+    <center>
+        <h1>17-726 Learning-Based Image Synthesis</h1>
+        <h1>Assignment 4 - Neural Style Transfer</h1>
+        <h2><strong>Gaurav Sethia | gsethia</strong></h2>
+    </center>
+    <h2>Part 1: Content Reconstruction</h2>
+
+        <h3>1. Report the effect of optimizing content loss at different layers </h3>
+            <p>
+                In this section, we will explore the effect of optimizing content loss at different layers of the VGG-19 network. We will analyze how the choice of layer affects the quality of the generated images.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Input Image</th>
+                        <th>Optimized Image</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Conv Layer 1</td>
+                        <td><img class="table_img" src="imgs/Q1_Input_image_conv_1.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q1_Reconstructed_image_conv_1.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 2</td>
+                        <td><img class="table_img" src="imgs/Q1_Input_image_conv_2.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q1_Reconstructed_image_conv_2.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 3</td>
+                        <td><img class="table_img" src="imgs/Q1_Input_image_conv_3.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q1_Reconstructed_image_conv_3.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 4</td>
+                        <td><img class="table_img" src="imgs/Q1_Input_image_conv_4.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q1_Reconstructed_image_conv_4.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 5</td>
+                        <td><img class="table_img" src="imgs/Q1_Input_image_conv_5.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q1_Reconstructed_image_conv_5.png" alt="Target Image"></td>
+                    </tr>
+                </tbody>
+            </table>
+        
+        <h3>2. Take two random noises as two input images, optimize them only with content loss</h3>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 100%;">
+                    <img src="imgs/Q1_rand_1.png" alt="Toy Problem">
+                    <figcaption></figcaption>
+                </figure>
+            </div>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 100%;">
+                    <img src="imgs/Q1_rand_2.png" alt="Toy Problem">
+                    <figcaption></figcaption>
+                </figure>
+            </div>
+
+    <h2>Part 2: Texture Synthesis</h2>
+        
+        <h3>1. Report the effect of optimizing texture loss at different layers</h3>
+            <p>
+                In this section, we will explore the effect of optimizing texture loss at different layers of the VGG-19 network. We will analyze how the choice of layer affects the quality of the generated textures.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Input Image</th>
+                        <th>Optimized Image</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Conv Layer 1</td>
+                        <td><img class="table_img" src="imgs/Q2_Input_image_conv_1.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q2_Reconstructed_image_conv_1.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 2</td>
+                        <td><img class="table_img" src="imgs/Q2_Input_image_conv_2.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q2_Reconstructed_image_conv_2.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 3</td>
+                        <td><img class="table_img" src="imgs/Q2_Input_image_conv_3.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q2_Reconstructed_image_conv_3.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 4</td>
+                        <td><img class="table_img" src="imgs/Q2_Input_image_conv_4.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q2_Reconstructed_image_conv_4.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>Conv Layer 5</td>
+                        <td><img class="table_img" src="imgs/Q2_Input_image_conv_5.png" alt="Target Image"></td>
+                        <td><img class="table_img" src="imgs/Q2_Reconstructed_image_conv_5.png" alt="Target Image"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+        <h3>2. Take two random noises as two input images, optimize them only with style loss</h3>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 100%;">
+                    <img src="imgs/Q2_rand_1.png" alt="Toy Problem">
+                    <figcaption></figcaption>
+                </figure>
+            </div>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 100%;">
+                    <img src="imgs/Q2_rand_2.png" alt="Toy Problem">
+                    <figcaption></figcaption>
+                </figure>
+            </div>
+
+            
+    <h2>Part 3: Style Transfer</h2>
+        
+        <h3>1. Hyper-parameter tuning</h3>
+
+            <p>
+                In this section, we will explore the effect of hyper-parameter tuning on the style transfer process. We will analyze how different values of the style weight and content weight affect the quality of the generated images.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Style Weight</th>
+                        <th>Content Weight</th>
+                        <th>Num Steps</th>
+                        <th>Optimized Image</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10000</td>
+                        <td>1</td>
+                        <td>300</td>
+                        <td><img class="table_img" src="imgs/Q3_n_300_w_10000_c_1.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>10000</td>
+                        <td>1</td>
+                        <td>600</td>
+                        <td><img class="table_img" src="imgs/Q3_n_600_w_10000_c_1.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>10000</td>
+                        <td>1</td>
+                        <td>1000</td>
+                        <td><img class="table_img" src="imgs/Q3_n_1000_w_10000_c_1.png" alt="Target Image"></td>
+                    </tr>
+                    <!---->
+                    <tr>
+                        <td>1000000</td>
+                        <td>1</td>
+                        <td>300</td>
+                        <td><img class="table_img" src="imgs/Q3_n_300_w_1000000_c_1.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>1000000</td>
+                        <td>1</td>
+                        <td>600</td>
+                        <td><img class="table_img" src="imgs/Q3_n_600_w_1000000_c_1.png" alt="Target Image"></td>
+                    </tr>
+                    <tr>
+                        <td>1000000</td>
+                        <td>1</td>
+                        <td>1000</td>
+                        <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_s_w.png" alt="Target Image"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        
+        <h3>2. Please report at least a 2x2 grid of results that are optimized from two content images mixing with two style images accordingly</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Content / Style </th>
+                    <th><img class="table_img" src="imgs/starry_night.jpeg" alt="Target Image"></th>
+                    <th><img class="table_img" src="imgs/frida_kahlo.jpeg" alt="Target Image"></th>
+                    <th><img class="table_img" src="imgs/the_scream.jpeg" alt="Target Image"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img class="table_img" src="imgs/fallingwater.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_s_w.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_f_w.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_t_w.png" alt="Target Image"></td>
+                </tr>
+                <tr>
+                    <td><img class="table_img" src="imgs/wally.jpg" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_s_d.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_f_d.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_t_d.png" alt="Target Image"></td>
+                </tr>
+                <tr>
+                    <td><img class="table_img" src="imgs/phipps.jpeg" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_s_p.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_f_p.png" alt="Target Image"></td>
+                    <td><img class="table_img" src="imgs/Q3_Reconstructed_image_conv_1_t_p.png" alt="Target Image"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3. Take input as random noise and a content image respectively.</h3>
+            <!-- 600-->
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 100%;">
+                    <img src="imgs/Q3_Reconstructed_image_conv_1_noise_1.png" alt="Toy Problem">
+                    <figcaption>Image Generated using Noise with the style "the_scream'</figcaption>
+                </figure>
+            </div>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 100%;">
+                    <img src="imgs/Q3_Reconstructed_image_conv_1_noise_2.png" alt="Toy Problem">
+                    <figcaption>Image Generated using Noise with the style "starry_night'</figcaption>
+                </figure>
+            </div>
+            
+        <h3>4. Try style transfer on some of your favorite images</h3>
+        <p>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 30%;">
+                    <img src="imgs/golden_gate.jpg" width="300px" alt="Toy Problem">
+                    <figcaption>Content Image</figcaption>
+                </figure>
+                <figure style="max-width: 30%;">
+                    <img src="imgs/starry_night.jpeg" width="300px" alt="Toy Problem">
+                    <figcaption>Style Image</figcaption>
+                </figure>
+                <figure style="max-width: 30%;">
+                    <img src="imgs/Q3_Reconstructed_image_conv_1_gg.png" width="300px" alt="Toy Problem">
+                    <figcaption>Style Transfer Result</figcaption>
+            </div>
+        </p>
+        <p>
+            <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                <figure style="max-width: 30%;">
+                    <img src="imgs/Pittsburgh.jpg" width="300px" alt="Toy Problem">
+                    <figcaption>Content Image</figcaption>
+                </figure>
+                <figure style="max-width: 30%;">
+                    <img src="imgs/style_.jpg" width="300px" alt="Toy Problem">
+                    <figcaption>Style Image</figcaption>
+                </figure>
+                <figure style="max-width: 30%;">
+                    <img src="imgs/Q3_Reconstructed_image_conv_1_pitts.png" width="300px" alt="Toy Problem">
+                    <figcaption>Style Transfer Result</figcaption>
+            </div>
+        </p>
+
+
+    <h2>Bells and Whistles</h2>
+    <h3>1. Stylize your Poisson blended Images</h3>
+    
+    <p>
+        <div style="text-align: center; display: flex; justify-content: space-evenly;">
+            <figure style="max-width: 30%;">
+                <img src="imgs/cathy_og.jpg" width="300px" alt="Toy Problem">
+                <figcaption>Content Image</figcaption>
+            </figure>
+            <figure style="max-width: 30%;">
+                <img src="imgs/starry_night.jpeg" width="300px" alt="Toy Problem">
+                <figcaption>Style Image</figcaption>
+            </figure>
+            <figure style="max-width: 30%;">
+                <img src="imgs/cathy.png" width="300px" alt="Toy Problem">
+                <figcaption>Style Transfer Result</figcaption>
+        </div>
+    </p>
+    <p>
+        <div style="text-align: center; display: flex; justify-content: space-evenly;">
+            <figure style="max-width: 30%;">
+                <img src="imgs/icon_og.png" width="300px" alt="Toy Problem">
+                <figcaption>Content Image</figcaption>
+            </figure>
+            <figure style="max-width: 30%;">
+                <img src="imgs/starry_night.jpeg" width="300px" alt="Toy Problem">
+                <figcaption>Style Image</figcaption>
+            </figure>
+            <figure style="max-width: 30%;">
+                <img src="imgs/icon.png" width="300px" alt="Toy Problem">
+                <figcaption>Style Transfer Result</figcaption>
+        </div>
+    </p>
+    
+
+</div>
+</body>
+
+</html>

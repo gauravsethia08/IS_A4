@@ -79,10 +79,15 @@ def gram_matrix(activations):
     a, b, c, d = activations.size()  # a=batch size(=1)
     # b=number of feature maps
     # (c,d)=dimensions of a f. map (N=c*d)
-    raise NotImplementedError()
+    # features = activations.view(a * b, c * d)  # resise F_XL into \hat{F}_{XL}
+    features = activations.view(a * b, c * d)
+    gram = torch.mm(features, features.t())
+  # compute the gram product
+    # raise NotImplementedError()
 
     # 'normalize' the values of the gram matrix
     # by dividing by the number of element in each feature maps.
+    normalized_gram = gram.div(a * b * c * d)  # normalize the gram matrix
 
     return normalized_gram
 
@@ -98,11 +103,11 @@ class StyleLoss(nn.Module):
     def __init__(self, target_feature):
         super(StyleLoss, self).__init__()
         # need to detach and cache the appropriate thing
-        # self.target = TODO
-        raise NotImplementedError()
+        self.target = gram_matrix(target_feature.detach())
+        # raise NotImplementedError()
 
     def forward(self, input):
         # need to cache the appropriate loss value in self.loss
-        # self.loss = TODO
-        raise NotImplementedError()
+        self.loss = F.mse_loss(gram_matrix(input), self.target)
+        # raise NotImplementedError()
         return input

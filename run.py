@@ -19,8 +19,10 @@ module that has content loss and style loss modules correctly inserted.
 """
 
 # desired depth layers to compute style/content losses :
-content_layers_default = ['conv_4']
-style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
+content_layers_default = ['conv_3']
+# style_layers_default = ['conv_1']
+# style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
+style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5', 'conv_6', 'conv_7', 'conv_8', 'conv_9', 'conv_10']
 
 
 def get_model_and_losses(cnn, style_img, content_img,
@@ -52,12 +54,18 @@ def get_model_and_losses(cnn, style_img, content_img,
     for layer in cnn.children():
         if type(layer) == nn.Conv2d:
             
-            model.add_module(f"Conv_{i}", layer)
+            model.add_module(f"conv_{i}", layer)
 
-            if f'conv_{i}' in content_layers_default:
+            if f'conv_{i}' in content_layers:
                 content_loss = ContentLoss(model(content_img).detach())
                 model.add_module(f"ContentLoss_{i}", content_loss)
                 content_losses.append(content_loss)
+
+            if f'conv_{i}' in style_layers:
+                # add style loss
+                style_loss = StyleLoss(model(style_img).detach())
+                model.add_module(f"StyleLoss_{i}", style_loss)
+                style_losses.append(style_loss)
 
             i+=1
 
@@ -70,7 +78,14 @@ def get_model_and_losses(cnn, style_img, content_img,
         elif type(layer) == nn.MaxPool2d:
             model.add_module(f"MaxPool2d_{i}", layer)
         
-    # 
+    for i in range(len(model) - 1, -1, -1):
+        if type(model[i]) == StyleLoss or type(model[i]) == ContentLoss:
+            print("break", i)
+            break
+
+    model = model[:i+1]
+    print(model)
+
 
     return model, style_losses, content_losses
 
@@ -97,26 +112,14 @@ def run_optimization(cnn, content_img, style_img, input_img, use_content=True, u
     print('Building the style transfer model..')
     # get your model, style, and content losses
     model, style_losses, content_losses = get_model_and_losses(cnn, style_img, content_img)
-    model.eval()
+    model.requires_grad_(False)
 
     # get the optimizer
-    input_img.require_grad = True
+    input_img.requires_grad_(True)
     optimizer = get_image_optimizer(input_img)
 
-    # run model training, with one weird caveat
-    # we recommend you use LBFGS, an algorithm which preconditions the gradient
-    # with an approximate Hessian taken from only gradient evaluations of the function
-    # this means that the optimizer might call your function multiple times per step, so as
-    # to numerically approximate the derivative of the gradients (the Hessian)
-    # so you need to define a function
-    # def closure():
-    # here
-    # which does the following:
-    # clear the gradients
-    # compute the loss and it's gradient
-    # return the loss
     step = [0]
-    def closure():
+    def losses():
         # Clip the image
         with torch.no_grad():
             input_img.clamp(0, 1)
@@ -126,22 +129,31 @@ def run_optimization(cnn, content_img, style_img, input_img, use_content=True, u
         # Forward pass
         model(input_img)
 
-        total_loss, content_loss, style_loss = 0, 0, 0
+        total_loss = 0
+        content_loss = 0
+        style_loss = 0
+        
         if use_content:
             for l in content_losses:
-                content_loss += l.loss * content_weight
-
+                content_loss += l.loss*content_weight
             total_loss += content_loss
 
+        if use_style:
+            for l in style_losses:
+                style_loss += l.loss*style_weight
+            total_loss += style_loss
+
+
         total_loss.backward()
+        step[0] += 1
         if step[0] % 100 == 0:
             print(step[0], num_steps, "style loss, content loss", style_loss, content_loss)
-
+        
         return total_loss
 
-    while step[0] < num_steps:
-        optimizer.step(closure)
 
+    while step[0] < num_steps:
+        optimizer.step(losses)
 
     # one more hint: the images must be in the range [0, 1]
     # but the optimizer doesn't know that
@@ -176,12 +188,6 @@ def main(style_img_path, content_img_path):
     assert style_img.size() == content_img.size(), \
         "we need to import style and content images of the same size"
 
-    # plot the original input image:
-    plt.figure()
-    imshow(style_img, title='Style Image')
-
-    plt.figure()
-    imshow(content_img, title='Content Image')
 
     # we load a pretrained VGG19 model from the PyTorch models library
     # but only the feature extraction part (conv layers)
@@ -192,50 +198,85 @@ def main(style_img_path, content_img_path):
     # Part 1
     ####################################
     # image reconstruction
-    print("Performing Image Reconstruction from white noise initialization")
-    # input_img = random noise of the size of content_img on the correct device
-    # output = reconstruct the image from the noise
-    # image reconstruction
-    print("Performing Image Reconstruction from white noise initialization")
-    # input_img = random noise of the size of content_img on the correct device
-    # output = reconstruct the image from the noise
+    # print("Performing Image Reconstruction from white noise initialization")
+    # input_img = None
+    # input_img = torch.rand_like(content_img, device=device)
+    # plt.figure()
+    # imshow(input_img, title='Input Image', save_path=f"results/Q1_Input_image_{content_layers_default[0]}.png")
+    # output = run_optimization(cnn, content_img, style_img, input_img, use_content=True, use_style=False,
+    #                           style_weight=10000, content_weight=1)
     
-    input_img = None
-    input_img = torch.rand_like(content_img, device=device)
-    plt.figure()
-    imshow(input_img, title='Input Image')
-    output = run_optimization(cnn, content_img, style_img, input_img, use_content=True, use_style=False,
-                              style_weight=10000, content_weight=1)
-    
-    plt.figure()
-    imshow(output, title='Reconstructed Image')
+    # plt.figure()
+    # imshow(output, title='Reconstructed Image', save_path=f"results/Q1_Reconstructed_image_{content_layers_default[0]}.png")
+    # plt.ioff()
+    # plt.show()
 
-    '''
+    ##################
+    # torch.manual_seed(1000)
+    # print("Performing Image Reconstruction from white noise initialization")
+    # input_img = None
+    # input_img = torch.rand_like(content_img, device=device)
+    # plt.figure()
+    # imshow(input_img, title='Input Image', save_path=f"results/Q1_Input_image_{content_layers_default[0]}.png")
+    # output = run_optimization(cnn, content_img, style_img, input_img, use_content=True, use_style=False,
+    #                           style_weight=10000, content_weight=1)
+    
+    # plt.figure()
+    # imshow(output, title='Reconstructed Image', save_path=f"results/Q1_Reconstructed_image_{content_layers_default[0]}_2.png")
+    # plt.ioff()
+    # plt.show()
+    ##################
+
+    
+    ####################################
+    # Part 2
+    ####################################
     # texture synthesis
-    print("Performing Texture Synthesis from white noise initialization")
-    # input_img = random noise of the size of content_img on the correct device
-    # output = synthesize a texture like style_image
+    # print("Performing Texture Synthesis from white noise initialization")
 
+    # input_img = torch.rand_like(content_img, device=device)
+    # plt.figure()
+    # imshow(input_img, title='Input Image', save_path=f"results/Q2_Input_image_{style_layers_default[0]}.png")
+    # output = run_optimization(cnn, content_img, style_img, input_img, use_content=False, use_style=True,
+    #                           style_weight=10000, content_weight=1)
+    
+    # plt.figure()
+    # imshow(output, title='Reconstructed Image', save_path=f"results/Q2_Reconstructed_image_{style_layers_default[0]}.png")
+    # plt.ioff()
+    # plt.show()
+    
+    ###########
+
+    # torch.manual_seed(500)
+    # input_img = torch.rand_like(content_img, device=device)
+    # plt.figure()
+    # imshow(input_img, title='Input Image', save_path=f"results/Q2_Input_image_{style_layers_default[0]}.png")
+    # output = run_optimization(cnn, content_img, style_img, input_img, use_content=False, use_style=True,
+    #                           style_weight=10000, content_weight=1)
+    
+    # plt.figure()
+    # imshow(output, title='Reconstructed Image', save_path=f"results/Q2_Reconstructed_image_{style_layers_default[0]}_2.png")
+    # plt.ioff()
+    # plt.show()
+    ############ 
+
+    ####################################
+    # Part 3
+    ####################################
+
+    input_img = content_img.clone()#.requires_grad_(True)
+    # plt.figure()
+    imshow(input_img, title='Input Image', save_path=f"results/Q3_Input_content_image_{style_layers_default[0]}.png")
+    # plt.figure()
+    imshow(style_img, title='Style Image', save_path=f"results/Q3_Style_image_{style_layers_default[0]}.png")
+    output = run_optimization(cnn, content_img, style_img, input_img, use_content=True, use_style=True, 
+                              num_steps=1000, style_weight=1000000, content_weight=1)
+    
     plt.figure()
-    imshow(output, title='Synthesized Texture')
-
-    # style transfer
-    # input_img = random noise of the size of content_img on the correct device
-    # output = transfer the style from the style_img to the content image
-
-    plt.figure()
-    imshow(output, title='Output Image from noise')
-
-    print("Performing Style Transfer from content image initialization")
-    # input_img = content_img.clone()
-    # output = transfer the style from the style_img to the content image
-
-    plt.figure()
-    imshow(output, title='Output Image from noise')
-
+    imshow(output, title='Reconstructed Image', save_path=f"results/Q3_Reconstructed_image_{style_layers_default[0]}.png")
     plt.ioff()
     plt.show()
-    '''
+
 
 if __name__ == '__main__':
     args = sys.argv[1:3]
